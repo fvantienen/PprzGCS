@@ -29,7 +29,12 @@ ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> construc
     // FIXME: small hack to set minimum size of the scrollarea
     QTimer* t = new QTimer(this);
     connect(t, &QTimer::timeout, this, [=,this]() {
-        this->setMinimumWidth(grid_layout->sizeHint().width());
+        // the content, plus the frame and the vertical scroll bar
+        this->setMinimumWidth(widget()->sizeHint().width() + 2 * frameWidth() + verticalScrollBar()->sizeHint().width());
+        // the content got taller or shorter (e.g. a strip shows a warning row): fit again
+        if(widget()->sizeHint().height() != fitted_height) {
+            fitInSplitter();
+        }
     });
     t->start(500);
 
@@ -157,7 +162,8 @@ void ListContainer::fitInSplitter() {
     if(idx < 0 || total <= 0) {
         return;
     }
-    int content = widget()->sizeHint().height() + 2 * frameWidth();
+    fitted_height = widget()->sizeHint().height();
+    int content = fitted_height + 2 * frameWidth();
     int wanted = qBound(minimumSizeHint().height(), content, total * 6 / 10);
     int others = total - sizes[idx];
     int rest = total - wanted;

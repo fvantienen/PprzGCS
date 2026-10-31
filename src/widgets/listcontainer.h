@@ -29,6 +29,7 @@ private:
 
     QMap<QWidget*, QString> buttons;
     QGridLayout* grid_layout;
+    int fitted_height = -1;     // content height when last fitted in the splitter
 
     QDomElement conf;
 

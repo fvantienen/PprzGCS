@@ -89,6 +89,13 @@ MapWidget {
 #mini_strip QLabel {
     background: transparent;
 }
+#mini_strip QLabel#caption {
+    color: #aab3bd;
+}
+#mini_strip QLabel#status_text {
+    color: #ff8a80;
+    font-weight: bold;
+}
 #mini_strip[link="warning"] {
     border: 3px solid #d9a03f;
     background: #2a2214;
