@@ -3,7 +3,7 @@
 ## NEXT
 + Map: position, reference and SRTM moved from the row above the map to the status bar; empty toolbar removed
 + Map: smaller side buttons (48 px) with a tooltip; the lock shows on hover or when locked, and a long press locks (touchscreens)
-+ Map: compact wind indicator (compass and wind speed in one pill)
++ Map: compact wind indicator (compass and wind speed in one pill); only the compass when there is no wind data
 + Flight plan: blocks as full-width rows (touch friendly); the current block is highlighted with its time; tap a block, then Go, to jump
 + Layout: the strips take the height of their content, the rest goes to the flight plan
 + Strip: new layout (name, mode, block and time; then labeled battery, altitude, speed and throttle); status icons only when not ok, with a text; lost links frame the strip in amber or red, a low battery shows the voltage in amber or red

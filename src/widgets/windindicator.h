@@ -37,6 +37,7 @@ public:
 
     void setWindData(QString ac_id, double dir, double speed) {
         wind_data[ac_id] = {dir, speed};
+        updateGeometry();   // the speed shows next to the compass
         update();
     }
     void setCompass(double c) {compass = c; update();}
@@ -59,7 +60,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-    void setAC(QString ac_id) {current_ac_id = ac_id; update();}
+    void setAC(QString ac_id) {current_ac_id = ac_id; updateGeometry(); update();}
 
 private:
     bool onNorth(QMouseEvent* event);

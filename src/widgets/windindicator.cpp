@@ -94,10 +94,6 @@ void WindIndicator::paintEvent(QPaintEvent *event) {
             txt = QString("%1 km/h").arg(wind_speed*3.6, 0, 'f', 1);
         }
         painter.drawText(r_txt, Qt::AlignVCenter | Qt::AlignRight, txt);
-    } else {
-        font.setBold(false);
-        painter.setFont(font);
-        painter.drawText(r_txt, Qt::AlignVCenter | Qt::AlignRight, "no wind");
     }
 }
 
@@ -162,5 +158,9 @@ QSize WindIndicator::sizeHint() const
 
 QSize WindIndicator::minimumSizeHint() const
 {
+    // without wind data only the compass (a circle), else the pill with the wind speed
+    if(!wind_data.contains(current_ac_id)) {
+        return QSize(_size.height(), _size.height());
+    }
     return _size;
 }

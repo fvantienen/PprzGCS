@@ -30,6 +30,52 @@ MapWidget {
 }
 
 
+/* Window: light gray menu and status bar, white right column (like the mockup) */
+QMenuBar {
+    background: #f4f5f7;
+    border-bottom: 1px solid #d8dde3;
+}
+QMenuBar::item {
+    background: transparent;
+    padding: 4px 10px;
+}
+QMenuBar::item:selected {
+    background: #dde7f7;
+}
+QMenu {
+    background: #ffffff;
+    border: 1px solid #c4ccd5;
+}
+QMenu::item {
+    padding: 6px 24px 6px 12px;
+}
+QMenu::item:selected {
+    background: #dde7f7;
+    color: #111418;
+}
+QStatusBar {
+    background: #f4f5f7;
+    border-top: 1px solid #d8dde3;
+}
+QSplitter::handle {
+    background: #d8dde3;
+}
+#right_pane QWidget {
+    background-color: #ffffff;
+}
+#right_pane QPushButton {
+    background-color: #f4f5f7;
+    border: 1px solid #c4ccd5;
+    border-radius: 4px;
+    padding: 3px 10px;
+}
+#right_pane QPushButton:hover {
+    background-color: #e8ecf0;
+}
+#right_pane QPushButton:checked {
+    background-color: #dde7f7;
+}
+
 /* Default theme: light, for outdoor use in sunlight (dark text, strong status colors).
    night_style.qss is the dark alternative (Settings > General > Style). */
 
