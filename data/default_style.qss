@@ -256,3 +256,24 @@ QPushButton#setting_path:hover {
 QLabel#setting_path_sep {
     color: #57606a;
 }
+
+/* Checklist: progress of the required items, the open ones in amber */
+*[checklist_open="true"] {
+    color: #8a4b00;
+    font-weight: bold;
+}
+QProgressBar#checklist_progress {
+    border: 0;
+    border-radius: 4px;
+    background: #e3e7ec;
+}
+QProgressBar#checklist_progress::chunk {
+    border-radius: 4px;
+    background: #1f7a3f;
+}
+QLabel#checklist_count {
+    font-family: "Monospace";
+}
+#right_pane Checklist {
+    border: 0;
+}

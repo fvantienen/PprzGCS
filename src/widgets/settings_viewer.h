@@ -37,6 +37,7 @@ private:
     QVBoxLayout* main_layout;
     QHBoxLayout* search_layout;
     QStackedWidget* path;
+    QWidget* path_row;
     QScrollArea* scroll;
     QStackedWidget* scroll_content;
     QVBoxLayout* content_layout;

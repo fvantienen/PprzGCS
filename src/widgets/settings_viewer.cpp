@@ -26,9 +26,16 @@ SettingsViewer::SettingsViewer(QString ac_id, QWidget *parent) : QWidget(parent)
 
     // home, search and save on one row; the path (System > Logger) below, only inside a group
     main_layout->setContentsMargins(6, 6, 6, 6);
+    // the path row (inside a group): home, then the groups (System > Logger)
+    path_row = new QWidget(this);
+    auto path_row_layout = new QHBoxLayout(path_row);
+    path_row_layout->setContentsMargins(0, 0, 0, 0);
+    path_row_layout->setSpacing(2);
     path = new QStackedWidget(this);
     path->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    main_layout->addWidget(path);
+    path_row_layout->addWidget(button_home);
+    path_row_layout->addWidget(path, 1);
+    main_layout->addWidget(path_row);
     button_home->setToolTip("All groups");
     button_save->setToolTip("Save the settings in the airframe file");
 
@@ -47,12 +54,11 @@ SettingsViewer::SettingsViewer(QString ac_id, QWidget *parent) : QWidget(parent)
     search_bar = new QLineEdit(this);
     search_bar->setPlaceholderText("search");
     search_bar->setClearButtonEnabled(true);
-    search_layout->addWidget(button_home);
     search_layout->addWidget(search_bar, 1);
     search_layout->addWidget(button_save);
 
     connect(path, &QStackedWidget::currentChanged, this, [=,this](int index) {
-        path->setVisible(index != root_path_index);
+        path_row->setVisible(index != root_path_index);
     });
 
     auto search_callback = [=,this](const QString str) {
@@ -179,7 +185,7 @@ void SettingsViewer::create_widgets(SettingMenu* setting_menu, QList<SettingMenu
     path_indexes[setting_menu] = index_path;
     if(stack.isEmpty()) {
         root_path_index = index_path;
-        path->setVisible(path->currentIndex() != root_path_index);
+        path_row->setVisible(path->currentIndex() != root_path_index);
     }
 
     for(auto sets: setting_menu->getSettingMenus()) {
