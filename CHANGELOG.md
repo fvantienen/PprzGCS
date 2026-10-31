@@ -1,6 +1,9 @@
 # Changelog
 
 ## NEXT
++ Map: position, reference and SRTM moved from the row above the map to the status bar; empty toolbar removed
++ Map: smaller side buttons (48 px) with a tooltip; the lock shows on hover or when locked, and a long press locks (touchscreens)
++ Map: compact wind indicator (compass and wind speed in one pill)
 
 ## v1.0.13
 + Add Chat widget for `INFO_MSG`

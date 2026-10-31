@@ -512,6 +512,14 @@ void MapWidget::configure(QDomElement ele) {
             auto icon = QIcon(user_or_app_path("pictures/" + icon_src));
             auto button = new LockButton(icon, this);
             button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            // name on hover: the "title" attribute, else the widget name ("gps_classic_viewer" -> "Gps classic viewer")
+            auto title = widget_ele.attribute("title");
+            if(title.isEmpty()) {
+                title = name;
+                title.replace('_', ' ');
+                title[0] = title[0].toUpper();
+            }
+            button->setToolTip(title + " (long press or the lock in the corner: keep it open)");
 
             addWidget(widget, button, side);
             installEventFilter(widget);

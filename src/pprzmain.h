@@ -36,7 +36,6 @@ private:
     void populate_menu();
 
     QMenuBar *menu_bar;
-    QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
     QMenu* aircraftsTopMenu;

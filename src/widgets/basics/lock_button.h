@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QEvent>
 #include <QPaintEvent>
+#include <QElapsedTimer>
 
 class LockButton : public QWidget
 {
@@ -72,6 +73,8 @@ private:
     QRect active_rect;
 
     QWidget* _widget;
+
+    QElapsedTimer press_time;   // a long press toggles the lock (touchscreens have no hover)
 };
 
 #endif // LOCK_BUTTON_H
