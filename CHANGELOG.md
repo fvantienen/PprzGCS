@@ -1,6 +1,10 @@
 # Changelog
 
 ## NEXT
++ Checklist: `optional`, `help` (tooltip) and `remember` attributes, `choice` items and a Reset button
++ On `AIRCRAFT_REBOOT` the aircraft is reloaded (waypoints, settings, checklist), with a notice in the chat
++ Wind indicator and GVF config cleared on `AIRCRAFT_DIE`
++ Airframe: follow `<include>` for the checklist and defines (read-only)
 + Map: position, reference and SRTM moved from the row above the map to the status bar; empty toolbar removed
 + Map: smaller side buttons (48 px) with a tooltip; the lock shows on hover or when locked, and a long press locks (touchscreens)
 + Map: compact wind indicator (compass and wind speed in one pill); only the compass when there is no wind data

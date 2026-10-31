@@ -61,6 +61,7 @@ protected:
 
 private slots:
     void setAC(QString ac_id) {current_ac_id = ac_id; updateGeometry(); update();}
+    void removeAC(QString ac_id) {wind_data.remove(ac_id); updateGeometry(); update();}
 
 private:
     bool onNorth(QMouseEvent* event);

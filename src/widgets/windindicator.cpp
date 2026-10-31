@@ -15,6 +15,7 @@ WindIndicator::WindIndicator(QWidget *parent) : QWidget(parent),
     m_arrow_color(Qt::red), m_pen_color(Qt::black)
 {
     connect(DispatcherUi::get(), &DispatcherUi::ac_selected, this, &WindIndicator::setAC);
+    connect(DispatcherUi::get(), &DispatcherUi::ac_deleted, this, &WindIndicator::removeAC);
     setToolTip("Wind speed (click to change unit)\nCompass: drag the north marker or scroll to rotate the map, double-click it to reset");
 }
 
