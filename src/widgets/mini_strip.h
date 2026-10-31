@@ -17,6 +17,7 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 
 signals:

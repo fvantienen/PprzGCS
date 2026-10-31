@@ -17,6 +17,7 @@ static const QString STRIP_STYLE =
     "QPushButton#cell {border: 0; background: transparent; padding: 0; text-align: left;}"
     "QPushButton#cell:hover {background: rgba(128, 128, 128, 40);}";
 static const QString STRIP_FALLBACK =
+    "#mini_strip[selected=\"true\"] {border: 2px solid #1d5fc9; background: #f5f8fd;}"
     "#mini_strip[link=\"warning\"] {border: 3px solid #c27c0e; background: #fff4e0;}"
     "#mini_strip[link=\"lost\"] {border: 3px solid #b42318; background: #fde8e6;}"
     "QLabel[bat=\"low\"] {color: #8a4b00; font-weight: bold;}"
@@ -218,6 +219,18 @@ MiniStrip::MiniStrip(QString ac_id, QWidget *parent) : QWidget(parent),
     }
     time_button->setMinimumWidth(time_button->layout()->sizeHint().width() + 8);
 
+    // the selected aircraft's strip is highlighted; clicking a strip selects its aircraft
+    connect(DispatcherUi::get(), &DispatcherUi::ac_selected, this, [=,this](QString id) {
+        bool selected = id == this->ac_id;
+        if(property("selected").toBool() != selected) {
+            setProperty("selected", selected);
+            restyle(this);
+        }
+    });
+    if(DispatcherUi::get()->getSelectedAcId() == ac_id) {
+        setProperty("selected", true);
+    }
+
     // until the first data
     for(auto l: {bat_label, alt_label, speed_label, throttle_label}) {
         l->setText(QString::fromUtf8("\xE2\x80\x94"));
@@ -243,6 +256,9 @@ MiniStrip::MiniStrip(QString ac_id, QWidget *parent) : QWidget(parent),
 QPushButton* MiniStrip::makeCell(QLabel*& caption, QLabel*& value, bool vertical) {
     auto cell = new QPushButton(this);
     cell->setObjectName("cell");
+    connect(cell, &QPushButton::clicked, this, [=,this]() {
+        emit DispatcherUi::get()->ac_selected(ac_id);
+    });
     cell->setFlat(true);
     QBoxLayout* lay = vertical ? static_cast<QBoxLayout*>(new QVBoxLayout(cell)) : static_cast<QBoxLayout*>(new QHBoxLayout(cell));
     lay->setContentsMargins(2, 0, 2, 0);
@@ -555,6 +571,11 @@ void MiniStrip::updateData() {
 
     emit updated();
 
+}
+
+void MiniStrip::mousePressEvent(QMouseEvent *event) {
+    (void)event;
+    emit DispatcherUi::get()->ac_selected(ac_id);
 }
 
 bool MiniStrip::eventFilter(QObject *object, QEvent *event)

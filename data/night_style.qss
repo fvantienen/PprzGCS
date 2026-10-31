@@ -96,6 +96,10 @@ MapWidget {
     color: #ff8a80;
     font-weight: bold;
 }
+#mini_strip[selected="true"] {
+    border: 2px solid #6ea8ff;
+    background: #1f2937;
+}
 #mini_strip[link="warning"] {
     border: 3px solid #d9a03f;
     background: #2a2214;
