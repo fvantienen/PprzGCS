@@ -1679,25 +1679,86 @@ void MapWidget::addRailPanel(QString id, QWidget* widget, QString title, QString
     auto button = new LockButton(QIcon(user_or_app_path("pictures/" + icon)), this);
     button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setToolTip(title + " (long press: keep it open; drag: move it to the tabs or the bottom of the map)");
+
+    // the panel in a card over the map: a title bar with a close button
+    auto card = new QFrame(this);
+    card->setObjectName("rail_card");
+    card->setAttribute(Qt::WA_StyledBackground);
+    auto card_layout = new QVBoxLayout(card);
+    card_layout->setContentsMargins(0, 0, 0, 0);
+    card_layout->setSpacing(0);
+    auto header = new QWidget(card);
+    header->setObjectName("rail_card_header");
+    auto header_layout = new QHBoxLayout(header);
+    header_layout->setContentsMargins(12, 4, 4, 4);
+    auto title_label = new QLabel(title, header);
+    title_label->setObjectName("rail_card_title");
+    auto close_button = new QToolButton(header);
+    close_button->setObjectName("rail_card_close");
+    close_button->setText(QString::fromUtf8("\xE2\x9C\x95"));
+    close_button->setToolTip("Close");
+    header_layout->addWidget(title_label, 1);
+    header_layout->addWidget(close_button);
+    card_layout->addWidget(header);
+    auto body = new QWidget(card);
+    body->setObjectName("rail_card_body");
+    auto body_layout = new QVBoxLayout(body);
+    body_layout->setContentsMargins(8, 4, 8, 8);
+    body_layout->addWidget(widget);
+    card_layout->addWidget(body);
+    widget->show();
     // a panel from the tabs gets a usable width over the map
     if(widget->sizeHint().width() < 300) {
-        widget->setMinimumWidth(360);
+        card->setMinimumWidth(360);
     }
-    addWidget(widget, button, WIDGETS_LEFT);
+    if(!qApp->styleSheet().contains("rail_card")) {
+        card->setStyleSheet("#rail_card {background: white; border: 1px solid #c4ccd5; border-radius: 8px;}"
+                            "#rail_card_title {font-weight: bold;}"
+                            "#rail_card_close {border: 0; background: transparent;}");
+    }
+    rail_cards[widget] = card;
+
+    card->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    addWidget(card, button, WIDGETS_LEFT);
+    columnLeft->setAlignment(card, Qt::AlignTop | Qt::AlignLeft);   // as tall as its content
+    connect(close_button, &QToolButton::clicked, this, [=]() {
+        card->hide();
+        button->setActive(false);
+    });
     connect(button, &LockButton::dragStarted, this, [=,this]() {
         PanelManager::get()->startDrag(id, button, button->grab());
     });
+    fitRailCards();
 }
 
 void MapWidget::removeRailPanel(QWidget* widget) {
+    auto card = rail_cards.take(widget);
+    if(card == nullptr) {
+        return;
+    }
     for(auto button: QList<LockButton*>(buttonsLeft)) {
-        if(button->widget() == widget) {
+        if(button->widget() == card) {
             buttonsLeft.removeAll(button);
             buttonsLeftLayout->removeWidget(button);
             button->hide();
             button->deleteLater();
         }
     }
-    columnLeft->removeWidget(widget);
+    columnLeft->removeWidget(card);
     widget->hide();
+    widget->setParent(nullptr);     // taken out of the card (the caller puts it elsewhere)
+    card->hide();
+    card->deleteLater();
+}
+
+/// The cards are not taller than the map.
+void MapWidget::fitRailCards() {
+    for(auto card: rail_cards) {
+        card->setMaximumHeight(qMax(200, height() - 30));
+    }
+}
+
+void MapWidget::resizeEvent(QResizeEvent *event) {
+    Map2D::resizeEvent(event);
+    fitRailCards();
 }

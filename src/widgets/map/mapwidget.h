@@ -155,6 +155,11 @@ private:
 
     QList<LockButton*> buttonsLeft;
     PanelTabs* bottom_tabs;
+    QMap<QWidget*, QFrame*> rail_cards;   // panel -> its card over the map (title, close)
+    void fitRailCards();
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+private:
     QList<LockButton*> buttonsRight;
 
     QPoint lastPos;

@@ -14,6 +14,7 @@ Chat::Chat(QWidget *parent) :
     ui(new Ui::Chat)
 {
     ui->setupUi(this);
+    ui->label->hide();  // the title is on the card or the tab
 
     auto settings_path = appConfig()->value("SETTINGS_PATH").toString();
     QSettings settings(settings_path, QSettings::IniFormat);

@@ -29,15 +29,20 @@ void GPSClassicViewer::paintEvent(QPaintEvent *event) {
         }
     }
 
+    // the quality as a colored bar on the left (the card is the background)
+    p.setRenderHint(QPainter::Antialiasing);
+    QColor quality;
     if(pacc > 800 || nb_sat_used <= 4) {
-        p.setBrush(QColor(0xff8888));
+        quality = QColor(0xb42318);
     } else if(pacc > 400 || nb_sat_used <= 6) {
-        p.setBrush(QColor(0xffc088));
+        quality = QColor(0xc27c0e);
     } else {
-        p.setBrush(QColor(0x88ff88));
+        quality = QColor(0x1f7a3f);
     }
     p.setPen(Qt::NoPen);
-    p.drawRect(rect());
+    p.setBrush(quality);
+    p.drawRoundedRect(QRect(0, 0, 4, rect().height()), 2, 2);
+    setToolTip("Click: show or hide the satellites");
 
     int ypacc = 0;
 
@@ -89,8 +94,8 @@ void GPSClassicViewer::paintEvent(QPaintEvent *event) {
     }
 
 
-    auto rect_acc = QRect(0, ypacc, rect().width(), 20);
-    auto txt = QString("Pos accuracy: %1m").arg(pacc/100., 0, 'f', 1);
+    auto rect_acc = QRect(10, ypacc, rect().width() - 10, 20);
+    auto txt = pacc == 65535 ? QString("Position accuracy: no data") : QString("Position accuracy: %1 m").arg(pacc/100., 0, 'f', 1);
     QFont f;
     f.setBold(true);
     p.setFont(f);
@@ -102,7 +107,8 @@ void GPSClassicViewer::paintEvent(QPaintEvent *event) {
     p.drawText(rect_acc, Qt::AlignLeft, txt, &rect_acc);
 
 
-    auto rect_nb_used = QRect(0, ypacc + 20, rect().width(), 20);
+    p.setPen(quality);
+    auto rect_nb_used = QRect(10, ypacc + 20, rect().width() - 10, 20);
     p.drawText(rect_nb_used, Qt::AlignLeft, QString("%1 satellites used").arg(nb_sat_used), &rect_nb_used);
 
 

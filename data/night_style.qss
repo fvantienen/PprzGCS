@@ -272,3 +272,53 @@ QLabel#checklist_count {
 #right_pane Checklist {
     border: 0;
 }
+
+/* Panels over the map (opened from the rail): a card with a title bar */
+#rail_card {
+    background-color: #1b1f25;
+    border: 1px solid #3a424d;
+    border-radius: 8px;
+}
+#rail_card_header {
+    background-color: #232830;
+    border-bottom: 1px solid #3a424d;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+#rail_card_body, #rail_card_body > QWidget {
+    background-color: #1b1f25;
+}
+QLabel#rail_card_title {
+    font-weight: bold;
+}
+QToolButton#rail_card_close {
+    border: 0;
+    background: transparent;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 4px;
+}
+QToolButton#rail_card_close:hover {
+    background-color: #2a3038;
+}
+/* Commands menu of a strip */
+#commands {
+    background-color: #1b1f25;
+}
+QLabel#commands_caption {
+    color: #aab3bd;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 6px;
+}
+#commands QPushButton {
+    background-color: #2a3038;
+    border: 1px solid #3a424d;
+    border-radius: 6px;
+    padding: 4px 10px;
+    min-height: 30px;
+    min-width: 30px;
+}
+#commands QPushButton:hover {
+    background-color: #333a44;
+}
