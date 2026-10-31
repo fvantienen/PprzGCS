@@ -3,6 +3,7 @@
 #include "AircraftManager.h"
 #include "strip.h"
 #include <QSplitter>
+#include "panels.h"
 #include <QTimer>
 
 ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> constructor, QWidget *parent) :
@@ -33,7 +34,9 @@ ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> construc
         // the content, plus the frame and the vertical scroll bar
         this->setMinimumWidth(widget()->sizeHint().width() + 2 * frameWidth() + verticalScrollBar()->sizeHint().width());
         // the content got taller or shorter (e.g. a strip shows a warning row): fit again
-        if(widget()->sizeHint().height() != fitted_height) {
+        // or the splitter changed (e.g. a tab group was added) and the strips need a scroll bar
+        bool cut = verticalScrollBar()->isVisible() && widget()->sizeHint().height() < 600;
+        if(widget()->sizeHint().height() != fitted_height || cut) {
             fitInSplitter();
         }
     });
@@ -42,6 +45,9 @@ ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> construc
     connect(DispatcherUi::get(), &DispatcherUi::new_ac_config, this, &ListContainer::handleNewAC);
     // once laid out, take only the height of the content in a vertical splitter
     QTimer::singleShot(0, this, &ListContainer::fitInSplitter);
+    connect(PanelManager::get(), &PanelManager::panelsMoved, this, [this]() {
+        QTimer::singleShot(0, this, &ListContainer::fitInSplitter);
+    });
     connect(DispatcherUi::get(), &DispatcherUi::ac_deleted, this, &ListContainer::removeAC);
 }
 

@@ -1,4 +1,5 @@
 #include "mapwidget.h"
+#include "panels.h"
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include "map_item.h"
@@ -50,7 +51,16 @@ MapWidget::MapWidget(QWidget *parent) : Map2D(parent),
 {
     auto settings = getAppSettings();
 
-    horizontalLayout = new QHBoxLayout(this);   // main layout
+    // main layout: the rail, panels and buttons over the map, and panels along its bottom
+    auto main_layout = new QVBoxLayout(this);
+    main_layout->setContentsMargins(0, 0, 0, 0);
+    main_layout->setSpacing(0);
+    horizontalLayout = new QHBoxLayout();
+    main_layout->addLayout(horizontalLayout, 1);
+    bottom_tabs = new PanelTabs("map_bottom", this, false);
+    bottom_tabs->setMaximumHeight(340);
+    bottom_tabs->setAutoFillBackground(true);
+    main_layout->addWidget(bottom_tabs);
     buttonsLeftLayout = new QVBoxLayout();
     columnLeft = new QVBoxLayout();
     rightLayout = new QVBoxLayout();
@@ -522,9 +532,6 @@ void MapWidget::configure(QDomElement ele) {
                 throw runtime_error(s);
             }
 
-            auto icon = QIcon(user_or_app_path("pictures/" + icon_src));
-            auto button = new LockButton(icon, this);
-            button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             // name on hover: the "title" attribute, else the widget name ("gps_classic_viewer" -> "Gps classic viewer")
             auto title = widget_ele.attribute("title");
             if(title.isEmpty()) {
@@ -532,13 +539,25 @@ void MapWidget::configure(QDomElement ele) {
                 title.replace('_', ' ');
                 title[0] = title[0].toUpper();
             }
-            button->setToolTip(title + " (long press or the lock in the corner: keep it open)");
 
-            addWidget(widget, button, side);
+            if(side == WIDGETS_LEFT) {
+                // the rail: panels that can be dragged to the tabs or the bottom of the map
+                widget->setObjectName(id);
+                PanelManager::get()->registerPanel(id, widget, title, icon_src, nullptr);
+                addRailPanel(id, widget, title, icon_src);
+            } else {
+                auto icon = QIcon(user_or_app_path("pictures/" + icon_src));
+                auto button = new LockButton(icon, this);
+                button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+                button->setToolTip(title + " (long press or the lock in the corner: keep it open)");
+                addWidget(widget, button, side);
+            }
             installEventFilter(widget);
 
         }
     }
+
+    PanelManager::get()->setMap(this);
 
     wind_indicator = new WindIndicator(this);
     wind_indicator->setObjectName("wind_indicator");
@@ -1654,4 +1673,31 @@ void MapWidget::showCrashPrediction(bool state) {
             itemManager->getCrashItem()->setVisible(false);
         }
     }
+}
+
+void MapWidget::addRailPanel(QString id, QWidget* widget, QString title, QString icon) {
+    auto button = new LockButton(QIcon(user_or_app_path("pictures/" + icon)), this);
+    button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    button->setToolTip(title + " (long press: keep it open; drag: move it to the tabs or the bottom of the map)");
+    // a panel from the tabs gets a usable width over the map
+    if(widget->sizeHint().width() < 300) {
+        widget->setMinimumWidth(360);
+    }
+    addWidget(widget, button, WIDGETS_LEFT);
+    connect(button, &LockButton::dragStarted, this, [=,this]() {
+        PanelManager::get()->startDrag(id, button, button->grab());
+    });
+}
+
+void MapWidget::removeRailPanel(QWidget* widget) {
+    for(auto button: QList<LockButton*>(buttonsLeft)) {
+        if(button->widget() == widget) {
+            buttonsLeft.removeAll(button);
+            buttonsLeftLayout->removeWidget(button);
+            button->hide();
+            button->deleteLater();
+        }
+    }
+    columnLeft->removeWidget(widget);
+    widget->hide();
 }

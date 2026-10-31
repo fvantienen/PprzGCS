@@ -38,9 +38,11 @@ protected:
     virtual void paintEvent(QPaintEvent* e);
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
 
 signals:
     void clicked(bool);
+    void dragStarted();     // the button is dragged (e.g. to move its panel)
     void locked(bool);
 
 public slots:
@@ -76,7 +78,9 @@ private:
 
     QWidget* _widget;
 
-    QElapsedTimer press_time;   // a long press toggles the lock (touchscreens have no hover)
+    QElapsedTimer press_time;
+    QPoint press_pos;
+    bool dragging = false;   // a long press toggles the lock (touchscreens have no hover)
 };
 
 #endif // LOCK_BUTTON_H

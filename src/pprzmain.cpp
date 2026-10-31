@@ -7,6 +7,7 @@
 #include <QSettings>
 #include "app_settings.h"
 #include "gcs_utils.h"
+#include "panels.h"
 
 #if defined(SPEECH_ENABLED)
 #include "speaker.h"
@@ -126,6 +127,12 @@ void PprzMain::populate_menu() {
 
     connect(map_track_ac, &QAction::toggled, [=](bool checked) {
         GlobalConfig::get()->setValue("MAP_TRACK_AC", checked);
+    });
+
+    auto reset_panels = file_menu->addAction("Reset panels");
+    reset_panels->setToolTip("Put the panels (tabs, rail, bottom of the map) back as in the layout file");
+    connect(reset_panels, &QAction::triggered, this, [](){
+        PanelManager::get()->reset();
     });
 
     auto quit = file_menu->addAction("&Quit");

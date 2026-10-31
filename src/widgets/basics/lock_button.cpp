@@ -19,6 +19,7 @@ void LockButton::setSize(QSize s) {
     lock_rect = QRect(_size.width() - lock_size.width(), 0, lock_size.width(), lock_size.height());
     icon_margins = QMargins(_size.width()/5, _size.height()/5, _size.width()/5, _size.height()/5);
     setActiveSide(activeSide);
+    updateGeometry();   // the size can come from the style sheet after the layout was made
 }
 
 void LockButton::setActiveSide(bool activeLeft) {
@@ -84,12 +85,29 @@ void LockButton::mousePressEvent(QMouseEvent *e) {
         state = PRESSED;
     }
     press_time.start();
+    press_pos = e->pos();
+    dragging = false;
 
     repaint();
 }
 
+void LockButton::mouseMoveEvent(QMouseEvent *e) {
+    if((e->buttons() & Qt::LeftButton) && !dragging && !lock_rect.contains(press_pos) &&
+       (e->pos() - press_pos).manhattanLength() > QApplication::startDragDistance() * 2) {
+        dragging = true;
+        press_time.invalidate();
+        state = IDLE;
+        update();
+        emit dragStarted();
+    }
+}
+
 void LockButton::mouseReleaseEvent(QMouseEvent *e) {
     if(e->button() != Qt::LeftButton) {
+        return;
+    }
+    if(dragging) {
+        dragging = false;
         return;
     }
 

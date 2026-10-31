@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QTabWidget>
+#include "panels.h"
 #include <QMainWindow>
 #include <iostream>
 #include "pprzmain.h"
@@ -53,15 +54,21 @@ QWidget* rec_layout_build(QDomElement &ele, QSplitter* parent, int* size) {
 
     } else if(ele.tagName()=="tabs") {
         // widgets as tabs: <tabs><widget name="flightplan" title="Flight plan"/>...</tabs>
-        auto tabs = new QTabWidget(parent);
-        tabs->setObjectName(ele.attribute("id", "tabs"));
-        tabs->setDocumentMode(true);
+        // the panels can be dragged to other groups, the bottom of the map or the map rail
+        static int tabs_count = 0;
+        QString tabs_id = ele.attribute("id", tabs_count == 0 ? QString("tabs") : QString("tabs_%1").arg(tabs_count + 1));
+        tabs_count++;
+        auto tabs = new PanelTabs(tabs_id, parent);
+        PanelManager::get()->registerTabs(tabs);
         for(auto child=ele.firstChildElement("widget"); !child.isNull(); child=child.nextSiblingElement("widget")) {
             int s = 0;
             QWidget* w = rec_layout_build(child, nullptr, &s);
             w->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            auto title = child.attribute("title", child.attribute("name"));
+            auto name = child.attribute("name");
+            auto title = child.attribute("title", name);
+            auto icon = child.attribute("icon", "rail_" + name.toLower() + ".svg");
             tabs->addTab(w, title);
+            PanelManager::get()->registerPanel(child.attribute("id", name), w, title, icon, tabs);
         }
         if(parent != nullptr) {
             parent->addWidget(tabs);
@@ -190,6 +197,10 @@ PprzMain* configure(QString filename) {
 
     auto window = pprzApp()->mainWindow();
     window->setupUi(width, height, widget);
+
+    // the panels where the user put them last time, per layout file
+    PanelManager::get()->setLayoutName(QFileInfo(filename).completeBaseName());
+    PanelManager::get()->restore();
 
 
     //configure speech
