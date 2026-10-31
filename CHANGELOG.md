@@ -7,6 +7,7 @@
 + Flight plan: blocks as full-width rows (touch friendly); the current block is highlighted with its time; tap a block, then Go, to jump
 + Layout: the strips take the height of their content, the rest goes to the flight plan
 + Strip: new layout (name, mode, block and time; then labeled battery, altitude, speed and throttle); status icons only when not ok, with a text; lost links frame the strip in amber or red, a low battery shows the voltage in amber or red
++ Settings: groups with the same name (e.g. System from several modules) are shown as one
 + Style: the default theme is for sunlight; new night theme (night_style.qss), chosen from a list in Settings > General > Style
 
 ## v1.0.13

@@ -218,6 +218,10 @@ MiniStrip::MiniStrip(QString ac_id, QWidget *parent) : QWidget(parent),
     }
     time_button->setMinimumWidth(time_button->layout()->sizeHint().width() + 8);
 
+    // until the first data
+    for(auto l: {bat_label, alt_label, speed_label, throttle_label}) {
+        l->setText(QString::fromUtf8("\xE2\x80\x94"));
+    }
     updateAp("");
     updateStatusRow();
 
