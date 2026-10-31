@@ -24,3 +24,61 @@ MapWidget {
     qproperty-show_hidden_waypoints: false;
 }
 
+
+/* Default theme: light, for outdoor use in sunlight (dark text, strong status colors).
+   night_style.qss is the dark alternative (Settings > General > Style). */
+
+/* Strips: a frame when links are lost, the battery voltage in amber or red */
+#mini_strip QLabel {
+    background: transparent;
+}
+#mini_strip[link="warning"] {
+    border: 3px solid #c27c0e;
+    background: #fff4e0;
+}
+#mini_strip[link="lost"] {
+    border: 3px solid #b42318;
+    background: #fde8e6;
+}
+#mini_strip QLabel[bat="low"] {
+    color: #8a4b00;
+    font-weight: bold;
+}
+#mini_strip QLabel[bat="critic"] {
+    color: #b42318;
+    font-weight: bold;
+}
+
+/* Flight plan blocks: selected (tapped) and current block */
+QPushButton#block_row {
+    border: 0;
+    border-radius: 0;
+    padding: 0 8px;
+    min-height: 40px;
+    background: transparent;
+    text-align: left;
+}
+QPushButton#block_row QLabel {
+    background: transparent;
+}
+QPushButton#block_row:checked {
+    background: #dde7f7;
+    border-left: 4px solid #1d5fc9;
+}
+QPushButton#block_row[current="true"] {
+    background: #cfe9d6;
+    border-left: 4px solid #1f7a3f;
+}
+QPushButton#block_row[current="true"] QLabel {
+    color: #0b3d1c;
+    font-weight: bold;
+}
+QPushButton#block_go {
+    background: #1d5fc9;
+    color: white;
+    font-weight: bold;
+    border: 0;
+    border-radius: 5px;
+    padding: 0 14px;
+    min-height: 30px;
+}

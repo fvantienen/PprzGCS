@@ -5,6 +5,22 @@
 #include "mini_strip.h"
 #include <QDebug>
 #include <QSettings>
+#include <QApplication>
+
+// Lost links and battery level are shown with the properties "link" (on the strip) and "bat"
+// (on the voltage), styled by the application style sheet (light and night themes). These
+// colors are used when the style sheet does not style them (an older custom style).
+static const QString STRIP_STYLE = "QLabel {font-family: \"Monospace\";}";
+static const QString STRIP_FALLBACK =
+    "#mini_strip[link=\"warning\"] {border: 3px solid #c27c0e; background: #fff4e0;}"
+    "#mini_strip[link=\"lost\"] {border: 3px solid #b42318; background: #fde8e6;}"
+    "QLabel[bat=\"low\"] {color: #8a4b00; font-weight: bold;}"
+    "QLabel[bat=\"critic\"] {color: #b42318; font-weight: bold;}";
+
+static void restyle(QWidget* w) {
+    w->style()->unpolish(w);
+    w->style()->polish(w);
+}
 
 const QMap<QString, QString> MiniStrip::mode_colors{
     // fixedwings
@@ -234,7 +250,9 @@ MiniStrip::MiniStrip(QString ac_id, QWidget *parent) : QWidget(parent),
 
     gl->addLayout(misc_lay, 2, 2);
 
-    setStyleSheet("QLabel {font-family: \"Monospace\";}");
+    setObjectName("mini_strip");
+    setAttribute(Qt::WA_StyledBackground);
+    setStyleSheet(STRIP_STYLE + (qApp->styleSheet().contains("mini_strip") ? "" : STRIP_FALLBACK));
 
     auto ac_status = AircraftManager::get()->getAircraft(ac_id)->getStatus();
 
@@ -248,6 +266,24 @@ MiniStrip::MiniStrip(QString ac_id, QWidget *parent) : QWidget(parent),
 }
 
 void MiniStrip::handle_bat_status(AircraftWatcher::BatStatus bs) {
+    // the voltage itself in amber or red, not only the icon
+    QString level;
+    switch (bs) {
+    case AircraftWatcher::BatStatus::CATASTROPHIC:
+    case AircraftWatcher::BatStatus::CRITIC:
+        level = "critic";
+        break;
+    case AircraftWatcher::BatStatus::LOW:
+        level = "low";
+        break;
+    case AircraftWatcher::BatStatus::OK:
+        break;
+    }
+    if(bat_label->property("bat").toString() != level) {
+        bat_label->setProperty("bat", level);
+        restyle(bat_label);
+    }
+
     // change battery icon
     switch (bs) {
     case AircraftWatcher::BatStatus::CATASTROPHIC:
@@ -459,15 +495,22 @@ void MiniStrip::updateData() {
     }
 
 
+    QString link_state;
     if(nb_links_ok == telemetry_messages.size()) {
         // all links ok
         link_icon->setPixmap(link_ok.pixmap(icons_size));
     } else if(nb_links_ok > 0) {
         // some links lost
         link_icon->setPixmap(link_warning.pixmap(icons_size));
+        link_state = "warning";
     } else {
         // All links lost
         link_icon->setPixmap(link_lost.pixmap(icons_size));
+        link_state = "lost";
+    }
+    if(property("link").toString() != link_state) {
+        setProperty("link", link_state);
+        restyle(this);
     }
 
     if(telemetry_messages.size() > 1) {

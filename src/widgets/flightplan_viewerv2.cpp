@@ -32,7 +32,8 @@ QWidget* FlightPlanViewerV2::make_blocks_tab() {
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     auto widget = new QWidget();
     widget->setObjectName("blocks");
-    widget->setStyleSheet(
+    // colors from the application style sheet (light and night themes), these when it has none
+    if(!qApp->styleSheet().contains("block_row")) widget->setStyleSheet(
         "QPushButton#block_row { border: 0; border-radius: 0; padding: 0 8px; min-height: 40px; background: transparent; text-align: left; }"
         "QPushButton#block_row:checked { background: #dde7f7; border-left: 4px solid #1d5fc9; }"
         "QPushButton#block_row[current=\"true\"] { background: #cfe9d6; border-left: 4px solid #1f7a3f; }"
