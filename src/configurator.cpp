@@ -63,6 +63,11 @@ QWidget* rec_layout_build(QDomElement &ele, QSplitter* parent, int* size) {
 
         QWidget* widget = makeWidget(parent, container, name, alt);
         widget->setObjectName(id);
+        if(parent != nullptr) {
+            // in a splitter, the widget takes the size the splitter gives it (some containers
+            // are fixed-size for when they float over the map)
+            widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        }
 
         for(auto layout_ele=ele.firstChildElement(); !layout_ele.isNull(); layout_ele=layout_ele.nextSiblingElement()) {
             if(layout_ele.tagName() == "configure") {

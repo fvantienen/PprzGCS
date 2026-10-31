@@ -19,6 +19,7 @@ signals:
 private:
     void handleNewAC(QString ac_id);
     void removeAC(QString ac_id);
+    void fitInSplitter();
 
     std::function<QWidget*(QString, QWidget*)> constructor;
     std::function<QWidget*(QString, QWidget*)> alt_constructor;

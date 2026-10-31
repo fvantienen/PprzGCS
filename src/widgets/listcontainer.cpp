@@ -2,6 +2,8 @@
 #include "dispatcher_ui.h"
 #include "AircraftManager.h"
 #include "strip.h"
+#include <QSplitter>
+#include <QTimer>
 
 ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> constructor, QWidget *parent) :
     ListContainer(constructor, nullptr, parent)
@@ -32,6 +34,8 @@ ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> construc
     t->start(500);
 
     connect(DispatcherUi::get(), &DispatcherUi::new_ac_config, this, &ListContainer::handleNewAC);
+    // once laid out, take only the height of the content in a vertical splitter
+    QTimer::singleShot(0, this, &ListContainer::fitInSplitter);
     connect(DispatcherUi::get(), &DispatcherUi::ac_deleted, this, &ListContainer::removeAC);
 }
 
@@ -106,6 +110,8 @@ void ListContainer::handleNewAC(QString ac_id) {
 
     buttons[select_ac_button] = ac_id;
 
+    QTimer::singleShot(0, this, &ListContainer::fitInSplitter);
+
     connect(select_ac_button, &QToolButton::clicked, this,
         [=,this]() {
             emit DispatcherUi::get()->ac_selected(ac_id);
@@ -129,4 +135,38 @@ void ListContainer::removeAC(QString ac_id) {
         rect.key()->deleteLater();
         buttons.remove(rect.key());
     }
+
+    QTimer::singleShot(0, this, &ListContainer::fitInSplitter);
+}
+
+/**
+ * In a vertical splitter (e.g. the strips above the flight plan), take the height of the
+ * content (at most 60 % of the splitter) and give the rest to the other widgets.
+ */
+void ListContainer::fitInSplitter() {
+    auto splitter = qobject_cast<QSplitter*>(parentWidget());
+    if(splitter == nullptr || splitter->orientation() != Qt::Vertical || splitter->count() < 2) {
+        return;
+    }
+    int idx = splitter->indexOf(this);
+    auto sizes = splitter->sizes();
+    int total = 0;
+    for(auto s: sizes) {
+        total += s;
+    }
+    if(idx < 0 || total <= 0) {
+        return;
+    }
+    int content = widget()->sizeHint().height() + 2 * frameWidth();
+    int wanted = qBound(minimumSizeHint().height(), content, total * 6 / 10);
+    int others = total - sizes[idx];
+    int rest = total - wanted;
+    for(int i=0; i<sizes.size(); i++) {
+        if(i == idx) {
+            sizes[i] = wanted;
+        } else {
+            sizes[i] = others > 0 ? sizes[i] * rest / others : rest / (sizes.size() - 1);
+        }
+    }
+    splitter->setSizes(sizes);
 }
