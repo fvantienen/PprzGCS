@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QPushButton>
 #include <QSplitter>
+#include <QTabWidget>
 #include <QMainWindow>
 #include <iostream>
 #include "pprzmain.h"
@@ -50,6 +51,23 @@ QWidget* rec_layout_build(QDomElement &ele, QSplitter* parent, int* size) {
             return splitter;
         }
 
+    } else if(ele.tagName()=="tabs") {
+        // widgets as tabs: <tabs><widget name="flightplan" title="Flight plan"/>...</tabs>
+        auto tabs = new QTabWidget(parent);
+        tabs->setObjectName(ele.attribute("id", "tabs"));
+        tabs->setDocumentMode(true);
+        for(auto child=ele.firstChildElement("widget"); !child.isNull(); child=child.nextSiblingElement("widget")) {
+            int s = 0;
+            QWidget* w = rec_layout_build(child, nullptr, &s);
+            w->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+            auto title = child.attribute("title", child.attribute("name"));
+            tabs->addTab(w, title);
+        }
+        if(parent != nullptr) {
+            parent->addWidget(tabs);
+        } else {
+            return tabs;
+        }
     } else if(ele.tagName()=="widget") {
         QString name = ele.attribute("name", "");
         auto container = ele.attribute("container", "stack");
@@ -90,7 +108,7 @@ QWidget* rec_layout_build(QDomElement &ele, QSplitter* parent, int* size) {
             return widget;
         }
     } else {
-        qCritical(LOG_CONFIG)  << "Invalid tag: the tag should be one of [rows, columns, widget]";
+        qCritical(LOG_CONFIG)  << "Invalid tag: the tag should be one of [rows, columns, tabs, widget]";
         exit(-1);
     }
     return nullptr;

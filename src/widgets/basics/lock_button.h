@@ -14,6 +14,7 @@ class LockButton : public QWidget
     Q_PROPERTY(QColor color_hover MEMBER m_color_hover DESIGNABLE true)
     Q_PROPERTY(QColor color_idle  MEMBER m_color_idle DESIGNABLE true)
     Q_PROPERTY(QColor color_pressed  MEMBER m_color_pressed DESIGNABLE true)
+    Q_PROPERTY(QColor color_active  MEMBER m_color_active DESIGNABLE true)
     Q_PROPERTY(int size READ getSizeProperty WRITE setSizeProperty DESIGNABLE true)
 public:
     explicit LockButton(QIcon icon, QWidget *parent = nullptr);
@@ -68,6 +69,7 @@ private:
     QColor m_color_idle;
     QColor m_color_hover;
     QColor m_color_pressed;
+    QColor m_color_active = QColor(0x1d5fc9);  // background of the button of an open panel
 
     QRect lock_rect;
     QRect active_rect;

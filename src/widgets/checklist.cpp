@@ -71,6 +71,7 @@ Checklist::Checklist(QString ac_id, QWidget *parent) :
         }
     }
 
+    ui->verticalLayout->addStretch(1);    // items at the top when there is extra height (e.g. in a tab)
     setAutoFillBackground(true);
 }
 

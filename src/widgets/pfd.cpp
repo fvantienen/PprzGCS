@@ -320,7 +320,20 @@ QPixmap* Pfd::getIcon(Axis axis) {
             return &pix_yaw_rover;
         }
     } else {
-        throw runtime_error("[PFD] firmware not supported yet!");
+        // an unknown firmware must not stop the GCS: warn once and show the fixedwing pictures
+        static bool warned = false;
+        if(!warned) {
+            qWarning() << "[PFD] firmware" << firmware << "not supported yet, showing fixedwing";
+            warned = true;
+        }
+        switch (axis) {
+        case ROLL:
+            return &pix_roll_fixedwing;
+        case PITCH:
+            return &pix_pitch_fixedwing;
+        case YAW:
+            return &pix_yaw_fixedwing;
+        }
     }
     return nullptr;
 }

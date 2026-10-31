@@ -36,17 +36,21 @@ QPushButton:checked, QToolButton:checked {
     background-color: #2d4a7a;
 }
 QTabWidget::pane {
-    border: 1px solid #3a424d;
+    border: 0;
+    border-top: 1px solid #3a424d;
 }
 QTabBar::tab {
-    background-color: #232830;
-    color: #c3cad2;
-    padding: 6px 10px;
-    border: 1px solid #3a424d;
+    background: transparent;
+    border: 0;
+    padding: 8px 12px;
+    color: #aab3bd;
+}
+QTabBar::tab:hover {
+    color: #e6e8eb;
 }
 QTabBar::tab:selected {
-    background-color: #1b1f25;
     color: #e6e8eb;
+    font-weight: bold;
     border-bottom: 2px solid #6ea8ff;
 }
 QHeaderView::section {
@@ -61,10 +65,15 @@ QToolTip {
     border: 1px solid #6ea8ff;
 }
 
+/* the rail of panel buttons on the left of the map */
+#map_rail {
+    background: #15181d;
+}
 LockButton {
-    qproperty-color_idle: #d0151515;
-    qproperty-color_hover: #d0303030;
-    qproperty-color_pressed: #d0000000;
+    qproperty-color_idle: #ff15181d;
+    qproperty-color_hover: #ff2a3038;
+    qproperty-color_pressed: #ff0d0f12;
+    qproperty-color_active: #ff2d4a7a;
     qproperty-size: 48;
 }
 
@@ -86,6 +95,11 @@ MapWidget {
 }
 
 /* Strips: a frame when links are lost, the battery voltage in amber or red */
+#mini_strip {
+    border: 1px solid #2d333b;
+    border-radius: 6px;
+    background: #1b1f25;
+}
 #mini_strip QLabel {
     background: transparent;
 }
@@ -128,6 +142,9 @@ QPushButton#block_row {
 }
 QPushButton#block_row QLabel {
     background: transparent;
+}
+QPushButton#block_row QLabel#block_detail {
+    color: #aab3bd;
 }
 QPushButton#block_row:checked {
     background: #1f2b3d;

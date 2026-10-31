@@ -63,7 +63,20 @@ MapWidget::MapWidget(QWidget *parent) : Map2D(parent),
     buttonsLeftLayout->setAlignment(Qt::AlignTop);
     buttonsRightLayout->setAlignment(Qt::AlignTop);
 
-    horizontalLayout->addItem(buttonsLeftLayout);
+    // the buttons on the left are a full-height rail along the edge of the map
+    auto rail = new QWidget(this);
+    rail->setObjectName("map_rail");
+    rail->setAttribute(Qt::WA_StyledBackground);
+    rail->setLayout(buttonsLeftLayout);
+    buttonsLeftLayout->setContentsMargins(4, 6, 4, 6);
+    buttonsLeftLayout->setSpacing(4);
+    if(!qApp->styleSheet().contains("map_rail")) {
+        rail->setStyleSheet("#map_rail {background: #22272e;}");
+    }
+    horizontalLayout->setContentsMargins(0, 0, 9, 0);
+    columnLeft->setContentsMargins(6, 9, 0, 9);
+    rightLayout->setContentsMargins(0, 9, 0, 9);
+    horizontalLayout->addWidget(rail);
     horizontalLayout->addItem(columnLeft);
     horizontalLayout->addStretch(1);
     horizontalLayout->addItem(rightLayout);
@@ -530,6 +543,7 @@ void MapWidget::configure(QDomElement ele) {
     wind_indicator = new WindIndicator(this);
     wind_indicator->setObjectName("wind_indicator");
     wind_indicator->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    rightLayout->addStretch(1);  // at the bottom, also when there are no panels on the right
     rightLayout->addWidget(wind_indicator, 0, Qt::AlignRight);
 
     PprzDispatcher::get()->bind("WIND", this, [=,this](QString sender, pprzlink::Message msg){

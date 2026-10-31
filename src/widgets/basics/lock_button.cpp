@@ -17,7 +17,7 @@ void LockButton::setSize(QSize s) {
     _size = s;
     auto lock_size = QSize(qMax(12, _size.width()/4), qMax(12, _size.height()/4));
     lock_rect = QRect(_size.width() - lock_size.width(), 0, lock_size.width(), lock_size.height());
-    icon_margins = QMargins(_size.width()/8, _size.height()/8, _size.width()/8, _size.height()/8);
+    icon_margins = QMargins(_size.width()/5, _size.height()/5, _size.width()/5, _size.height()/5);
     setActiveSide(activeSide);
 }
 
@@ -45,7 +45,7 @@ void LockButton::paintEvent(QPaintEvent* e) {
 
     switch (state) {
     case IDLE:
-        painter.setBrush(QBrush(m_color_idle));
+        painter.setBrush(QBrush(active ? m_color_active : m_color_idle));
         break;
     case HOVER:
         painter.setBrush(QBrush(m_color_hover));
@@ -57,7 +57,8 @@ void LockButton::paintEvent(QPaintEvent* e) {
 
     painter.setPen(Qt::NoPen);
 
-    painter.drawRect(rect());
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.drawRoundedRect(rect(), 8, 8);
 
     QRect icon_rect = rect().marginsRemoved(icon_margins);
     icon.paint(&painter, icon_rect);
@@ -69,10 +70,7 @@ void LockButton::paintEvent(QPaintEvent* e) {
         icon_unlocked.paint(&painter, lock_rect.marginsRemoved(QMargins(1, 1, 1, 1)));
     }
 
-    if(active) {
-        painter.setBrush(QBrush(0x50e050));
-        painter.drawRect(active_rect);
-    }
+
 }
 
 void LockButton::mousePressEvent(QMouseEvent *e) {

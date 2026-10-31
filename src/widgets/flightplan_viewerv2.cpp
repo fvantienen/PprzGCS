@@ -35,6 +35,7 @@ QWidget* FlightPlanViewerV2::make_blocks_tab() {
     // colors from the application style sheet (light and night themes), these when it has none
     if(!qApp->styleSheet().contains("block_row")) widget->setStyleSheet(
         "QPushButton#block_row { border: 0; border-radius: 0; padding: 0 8px; min-height: 40px; background: transparent; text-align: left; }"
+        "QLabel#block_detail { color: #57606a; }"
         "QPushButton#block_row:checked { background: #dde7f7; border-left: 4px solid #1d5fc9; }"
         "QPushButton#block_row[current=\"true\"] { background: #cfe9d6; border-left: 4px solid #1f7a3f; }"
         "QPushButton#block_row[current=\"true\"] QLabel { color: #0b3d1c; font-weight: bold; }"
@@ -65,17 +66,29 @@ QWidget* FlightPlanViewerV2::make_blocks_tab() {
             QString icon_path = appConfig()->value("GCS_ICONS_PATH").toString() + "/" + icon;
             ll->setPixmap(QPixmap(icon_path).scaled(22, 22, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
-        auto lbl = new QLabel(txt != "" ? txt: name, row);
+        // "Takeoff (wp CLIMB)": the name, then the waypoints in gray
+        QString main = txt != "" ? txt: name;
+        QString detail;
+        static const QRegularExpression re("^(.*\\S)\\s*\\((?:wp\\s+)?(.*)\\)$");
+        auto m = re.match(main);
+        if(m.hasMatch()) {
+            main = m.captured(1);
+            detail = m.captured(2);
+        }
+        auto lbl = new QLabel(main, row);
+        auto det = new QLabel(detail, row);
+        det->setObjectName("block_detail");
         auto time = new QLabel(row);
         auto go = new QPushButton("Go", row);
         go->setObjectName("block_go");
         go->setToolTip("Jump to " + name);
         go->hide();
-        for(auto l: {ll, lbl, time}) {
+        for(auto l: {ll, lbl, det, time}) {
             l->setAttribute(Qt::WA_TransparentForMouseEvents);
         }
         hbox->addWidget(ll);
-        hbox->addWidget(lbl, 1);
+        hbox->addWidget(lbl);
+        hbox->addWidget(det, 1);
         hbox->addWidget(time);
         hbox->addWidget(go);
 

@@ -1,9 +1,14 @@
 
 /* Buttons on the map */
+/* the rail of panel buttons on the left of the map */
+#map_rail {
+    background: #22272e;
+}
 LockButton {
-    qproperty-color_idle: #b0252525;
-    qproperty-color_hover: #b0404040;
-    qproperty-color_pressed: #b0000000;
+    qproperty-color_idle: #ff22272e;
+    qproperty-color_hover: #ff3a4350;
+    qproperty-color_pressed: #ff14171c;
+    qproperty-color_active: #ff1d5fc9;
     qproperty-size: 48;
 }
 
@@ -29,6 +34,11 @@ MapWidget {
    night_style.qss is the dark alternative (Settings > General > Style). */
 
 /* Strips: a frame when links are lost, the battery voltage in amber or red */
+#mini_strip {
+    border: 1px solid #c4ccd5;
+    border-radius: 6px;
+    background: #ffffff;
+}
 #mini_strip QLabel {
     background: transparent;
 }
@@ -72,6 +82,9 @@ QPushButton#block_row {
 QPushButton#block_row QLabel {
     background: transparent;
 }
+QPushButton#block_row QLabel#block_detail {
+    color: #57606a;
+}
 QPushButton#block_row:checked {
     background: #dde7f7;
     border-left: 4px solid #1d5fc9;
@@ -92,4 +105,24 @@ QPushButton#block_go {
     border-radius: 5px;
     padding: 0 14px;
     min-height: 30px;
+}
+
+/* Tabs: flat, the selected one underlined */
+QTabWidget::pane {
+    border: 0;
+    border-top: 1px solid #c4ccd5;
+}
+QTabBar::tab {
+    background: transparent;
+    border: 0;
+    padding: 8px 12px;
+    color: #30363d;
+}
+QTabBar::tab:hover {
+    color: #111418;
+}
+QTabBar::tab:selected {
+    color: #111418;
+    font-weight: bold;
+    border-bottom: 2px solid #1d5fc9;
 }

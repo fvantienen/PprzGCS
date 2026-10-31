@@ -23,6 +23,7 @@ ListContainer::ListContainer(std::function<QWidget*(QString, QWidget*)> construc
 
     auto vbox = new QVBoxLayout(scroll_content);
     grid_layout = new QGridLayout();
+    grid_layout->setHorizontalSpacing(4);
     vbox->addLayout(grid_layout);
     vbox->addStretch(1);
 
@@ -71,17 +72,25 @@ void ListContainer::handleNewAC(QString ac_id) {
 
 
     auto ac = AircraftManager::get()->getAircraft(ac_id);
+    // a thin bar in the aircraft color (click: select it), and a small menu arrow below
     auto header = new QWidget(this);
     auto header_vbox = new QVBoxLayout(header);
+    header_vbox->setContentsMargins(0, 0, 0, 0);
+    header_vbox->setSpacing(2);
 
     auto select_ac_button = new QToolButton(header);
-    select_ac_button->setMinimumSize(QSize(20, 20));
+    select_ac_button->setFixedWidth(8);
+    select_ac_button->setMinimumHeight(20);
     select_ac_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    select_ac_button->setStyleSheet("background: " + ac->getColor().name());
-    header_vbox->addWidget(select_ac_button);
+    select_ac_button->setStyleSheet("QToolButton {background: " + ac->getColor().name() + "; border: 0; border-radius: 3px;}");
+    select_ac_button->setToolTip(ac->name());
+    header_vbox->addWidget(select_ac_button, 0, Qt::AlignHCenter);
     if(alt_constructor != nullptr) {
         auto action_button = new QToolButton(header);
         action_button->setArrowType(Qt::DownArrow);
+        action_button->setAutoRaise(true);
+        action_button->setFixedSize(20, 20);
+        action_button->setToolTip("Commands");
         header_vbox->addWidget(action_button);
         QWidget* alt_widget = alt_constructor(ac_id, nullptr);
         alt_widgets[ac_id] = alt_widget;

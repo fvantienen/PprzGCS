@@ -373,7 +373,16 @@ void MiniStrip::updateImu(QString state_filter_mode) {
 }
 
 void MiniStrip::updateCurrentBlock(uint8_t cur_block) {
-    auto block = AircraftManager::get()->getAircraft(ac_id)->getFlightPlan()->getBlock(cur_block);
+    shared_ptr<Block> block;
+    try {
+        block = AircraftManager::get()->getAircraft(ac_id)->getFlightPlan()->getBlock(cur_block);
+    } catch(std::runtime_error &e) {
+        // a block that is not in the loaded flight plan (e.g. another build): do not stop the GCS
+        block_label->setText(QString("Block %1").arg(cur_block));
+        block_label->setToolTip(e.what());
+        block_icon->hide();
+        return;
+    }
     QString block_name = block->getName();
     block_label->setToolTip("Block " + block_name);
     block_label->setText(block_name);
