@@ -33,14 +33,17 @@ void Pfd::paintEvent(QPaintEvent *event) {
 
     // square attitude indicator, the heading tape below
     // attitude, with the height tape on its right; heading tape and values below
-    const double tape_h = 34, values_h = 22, alt_w = 58, gap = 6;
-    double side = qMin<double>(width() - alt_w - gap, height() - tape_h - values_h - 2 * gap);
-    double left = (width() - side - alt_w - gap) / 2;
-    QRectF att(left, 0, side, side);
+    // speed tape | attitude | height tape; heading tape and values below
+    const double tape_h = 34, values_h = 22, alt_w = 58, spd_w = 54, gap = 6;
+    double side = qMin<double>(width() - alt_w - spd_w - 2 * gap, height() - tape_h - values_h - 2 * gap);
+    double left = (width() - side - alt_w - spd_w - 2 * gap) / 2;
+    QRectF spd_tape(left, 0, spd_w, side);
+    QRectF att(spd_tape.right() + gap, 0, side, side);
     QRectF alt_tape(att.right() + gap, 0, alt_w, side);
     QRectF tape(att.left(), att.bottom() + gap, side, tape_h);
-    QRectF values(att.left(), tape.bottom() + gap, side + gap + alt_w, values_h);
+    QRectF values(spd_tape.left(), tape.bottom() + gap, spd_w + side + alt_w + 2 * gap, values_h);
 
+    paintSpeed(p, spd_tape, e, valid);
     paintAttitude(p, att, e.roll, e.pitch, ac_color, valid);
     paintAltitude(p, alt_tape, e, valid);
     paintHeading(p, tape, e.yaw, valid);
@@ -317,6 +320,55 @@ void Pfd::paintAltitude(QPainter& p, QRectF r, const Eulers& e, bool valid) {
     p.drawText(QRectF(r.left(), r.bottom() - 16, r.width(), 14), Qt::AlignCenter, climb);
 }
 
+/// Ground speed: a vertical tape (+-10 m/s visible) with the value in a box, airspeed below.
+void Pfd::paintSpeed(QPainter& p, QRectF r, const Eulers& e, bool valid) {
+    const double radius = 8;
+    const double range = 20.;      // m/s visible
+    double px_per_ms = r.height() / range;
+    double cy = r.center().y();
+    double v = valid ? e.speed : 0;
+    p.save();
+    QPainterPath clip;
+    clip.addRoundedRect(r, radius, radius);
+    p.setClipPath(clip);
+    p.fillRect(r, QColor(0x1b1f25));
+    QFont f = font();
+    f.setPixelSize(10);
+    f.setBold(true);
+    p.setFont(f);
+    for(int s = qMax(0, static_cast<int>(floor(v - range / 2))); s <= v + range / 2; s++) {
+        double y = cy - (s - v) * px_per_ms;
+        p.setPen(QPen(QColor(0xd6dce3), 1.4));
+        double len = (s % 5 == 0) ? 9 : 4;
+        p.drawLine(QPointF(r.right() - len, y), QPointF(r.right(), y));
+        if(s % 5 == 0 && y > r.top() + 22 && y < r.bottom() - 22) {
+            p.drawText(QRectF(r.left() + 2, y - 7, r.width() - 14, 14), Qt::AlignRight | Qt::AlignVCenter, QString::number(s));
+        }
+    }
+    p.restore();
+
+    QRectF box(r.left() + 2, cy - 13, r.width() - 4, 26);
+    p.setPen(QPen(SYMBOL, 2));
+    p.setBrush(QColor(0x1b1f25));
+    p.drawRoundedRect(box, 5, 5);
+    QFont bf = font();
+    bf.setPixelSize(14);
+    bf.setBold(true);
+    p.setFont(bf);
+    p.setPen(Qt::white);
+    p.drawText(box, Qt::AlignCenter, valid ? QString::number(e.speed, 'f', 1) : "---");
+
+    QFont cf = font();
+    cf.setPixelSize(10);
+    cf.setBold(true);
+    p.setFont(cf);
+    p.setPen(QColor(0xd6dce3));
+    p.drawText(QRectF(r.left(), r.top() + 2, r.width(), 14), Qt::AlignCenter, "GS m/s");
+    if(valid && e.airspeed > 0.1) {
+        p.drawText(QRectF(r.left(), r.bottom() - 16, r.width(), 14), Qt::AlignCenter, QString("AS %1").arg(e.airspeed, 0, 'f', 1));
+    }
+}
+
 void Pfd::changeCurrentAC(QString id) {
     if(AircraftManager::get()->aircraftExists(id)) {
         current_ac = id;
@@ -336,6 +388,8 @@ void Pfd::updateEulers(pprzlink::Message msg) {
         msg.getField("agl", e.agl);
         msg.getField("alt", e.alt);
         msg.getField("climb", e.climb);
+        msg.getField("speed", e.speed);
+        msg.getField("airspeed", e.airspeed);
         eulers[ac_id] = e;
         if(ac_id == current_ac) {
             update();
@@ -345,10 +399,10 @@ void Pfd::updateEulers(pprzlink::Message msg) {
 
 QSize Pfd::sizeHint() const
 {
-    return QSize(320, 320);
+    return QSize(380, 320);
 }
 
 QSize Pfd::minimumSizeHint() const
 {
-    return QSize(260, 260);
+    return QSize(320, 260);
 }

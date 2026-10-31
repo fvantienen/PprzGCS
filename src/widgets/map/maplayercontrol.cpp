@@ -15,7 +15,7 @@ MapLayerControl::MapLayerControl(QString name, QPixmap pixmap, bool initialState
     setObjectName("layer_row");
     setAttribute(Qt::WA_StyledBackground);
     auto row = new QHBoxLayout(this);
-    row->setContentsMargins(4, 4, 4, 4);
+    row->setContentsMargins(6, 4, 12, 4);     // room from the card edge and the scroll bar
     row->setSpacing(10);
 
     // rounded thumbnail

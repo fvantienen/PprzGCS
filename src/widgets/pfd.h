@@ -21,6 +21,8 @@ public:
         float agl = 0;      // height above ground
         float alt = 0;      // altitude MSL
         float climb = 0;
+        float speed = 0;    // ground speed
+        float airspeed = 0;
     };
 
     explicit Pfd(QWidget *parent = nullptr);
@@ -39,6 +41,7 @@ private:
     void paintAttitude(QPainter& p, QRectF r, float roll, float pitch, QColor ac_color, bool valid);
     void paintHeading(QPainter& p, QRectF r, float heading, bool valid);
     void paintAltitude(QPainter& p, QRectF r, const Eulers& e, bool valid);
+    void paintSpeed(QPainter& p, QRectF r, const Eulers& e, bool valid);
 
     std::map<QString, struct Eulers> eulers;
     QString current_ac;
