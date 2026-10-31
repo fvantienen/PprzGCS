@@ -167,3 +167,51 @@ QPushButton#block_go {
     padding: 0 14px;
     min-height: 30px;
 }
+
+/* Settings: a row per setting, the value on the aircraft (amber until a sent value is confirmed) */
+#setting_row {
+    border-bottom: 1px solid #2d333b;
+}
+#setting_row QLabel#setting_name {
+    font-weight: bold;
+}
+#setting_row QLabel#setting_unit, #setting_row QLabel#setting_group_label {
+    color: #aab3bd;
+}
+QPushButton#setting_value {
+    font-family: "Monospace";
+    background-color: #232830;
+    border: 1px solid #3a424d;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 48px;
+}
+QPushButton#setting_value[pending="true"] {
+    background-color: #2a2214;
+    border: 2px solid #d9a03f;
+    color: #f2c46d;
+    font-weight: bold;
+}
+QToolButton#setting_action {
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 15px;
+}
+QToolButton#setting_action:hover {
+    background-color: #232830;
+}
+QPushButton#setting_group {
+    text-align: left;
+    background-color: #1b1f25;
+    border: 0;
+    border-bottom: 1px solid #2d333b;
+    border-radius: 0;
+    padding: 10px 8px;
+    font-weight: bold;
+}
+QPushButton#setting_group:hover {
+    background-color: #232830;
+}

@@ -10,7 +10,7 @@
 + Aircraft selection: click a strip to select its aircraft (selected strip framed); the aircraft bar above the panels only shows with more than one aircraft; the first aircraft is selected at start
 + Layout: Flight plan, Settings, Checklist and Plot as tabs on the right (new <tabs> layout element); a full-height rail with line icons on the left of the map; flat tabs; strips as cards with a thin aircraft-color bar; block names with their waypoints in gray; status bar with Server and the link of the selected aircraft
 + Robustness: an error while handling an incoming message is logged instead of stopping the GCS; an unknown block number (e.g. flight plan of another build) or an unsupported firmware in the PFD no longer stop the GCS
-+ Settings: groups with the same name (e.g. System from several modules) are shown as one
++ Settings: groups with the same name (e.g. System from several modules) are shown as one; compact rows (name, value on the aircraft with unit, send/undo/reset, editor below); a sent value is amber until the aircraft confirms it; home, search and save on one row; the group in search results
 + Style: the default theme is for sunlight; new night theme (night_style.qss), chosen from a list in Settings > General > Style
 
 ## v1.0.13
