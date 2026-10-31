@@ -143,7 +143,7 @@ void LayerCombo::mouseReleaseEvent(QMouseEvent* e) {
 
 
 
-void LayerCombo::makeLayerControl(QString name, bool initialState, int z) {
+void LayerCombo::makeLayerControl(QString name, bool initialState, int z, QString title) {
     QString path = user_or_app_path("pictures/map_thumbnails/" + name + ".png");
     auto settings = getAppSettings();
     QPixmap thumbnail = QPixmap(path);
@@ -152,7 +152,8 @@ void LayerCombo::makeLayerControl(QString name, bool initialState, int z) {
         thumbnail = QPixmap(path);
     }
 
-    MapLayerControl* layer_control = new MapLayerControl(name, thumbnail, initialState, z);
+    MapLayerControl* layer_control = new MapLayerControl(title.isEmpty() ? name : title, thumbnail, initialState, z);
+    layer_control->setToolTip(name);
 
     connect(
         layer_control, &MapLayerControl::showLayer, this,

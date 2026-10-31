@@ -322,3 +322,60 @@ QLabel#commands_caption {
 #commands QPushButton:hover {
     background-color: #333a44;
 }
+
+/* Chat */
+#chat_bubble {
+    background-color: #232830;
+    border-radius: 10px;
+}
+#chat_bubble_sent {
+    background-color: #1f2b3d;
+    border-radius: 10px;
+}
+QLabel#chat_time {
+    color: #aab3bd;
+    font-size: 11px;
+}
+QPushButton#chat_send {
+    background-color: #3b74d6;
+    color: white;
+    font-weight: bold;
+    border: 0;
+    border-radius: 6px;
+    padding: 5px 14px;
+}
+/* Link status */
+#link_row {
+    background-color: #1b1f25;
+    border: 1px solid #2d333b;
+    border-radius: 6px;
+}
+QLabel#link_name {
+    font-weight: bold;
+}
+QLabel#link_secondary {
+    color: #aab3bd;
+    font-size: 11px;
+}
+QLabel#link_value {
+    font-family: "Monospace";
+}
+/* Map layers */
+#layer_row {
+    border-bottom: 1px solid #2d333b;
+}
+QLabel#layer_name {
+    font-weight: bold;
+}
+QToolButton#layer_opacity_button {
+    border: 0;
+    background: transparent;
+    min-width: 30px;
+    min-height: 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #aab3bd;
+}
+QToolButton#layer_opacity_button:checked, QToolButton#layer_opacity_button:hover {
+    background-color: #2a3038;
+}

@@ -29,19 +29,26 @@ ChatBubble::ChatBubble(QString source, QString dest, QString msg, bool sent, QWi
     msg.replace(re, "<b>\\1</b>");
 
     chat_time = QTime::currentTime();
-    auto date = chat_time.toString();
-    ui->time_label->setText(date+" ");
+    ui->time_label->setText(chat_time.toString("HH:mm:ss"));
     ui->name_label->setText("<b>"+source_name+"</b>");
     ui->name_label->setStyleSheet("color:" + color.name());
     ui->message_label->setText(msg);
     ui->message_label->setTextFormat(Qt::RichText);
 
+    // a rounded bubble: received ones on the left, sent ones (ours) on the right in blue
+    ui->frame->setFrameShape(QFrame::NoFrame);
+    ui->frame->setObjectName(sent ? "chat_bubble_sent" : "chat_bubble");
+    ui->frame->setStyleSheet("");
+    ui->time_label->setObjectName("chat_time");
+    ui->time_label->setStyleSheet("");
+    ui->message_label->setWordWrap(true);
+    ui->message_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     if(sent) {
-        ui->name_label->setAlignment(Qt::AlignLeft);
-        ui->horizontalLayout->setAlignment(Qt::AlignLeft);
-    } else {
         ui->name_label->setAlignment(Qt::AlignRight);
         ui->horizontalLayout->setAlignment(Qt::AlignRight);
+    } else {
+        ui->name_label->setAlignment(Qt::AlignLeft);
+        ui->horizontalLayout->setAlignment(Qt::AlignLeft);
     }
 
     // delay set max width to wait for the widget to be shown.

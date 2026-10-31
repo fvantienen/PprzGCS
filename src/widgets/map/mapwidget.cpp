@@ -422,7 +422,7 @@ LayerCombo* MapWidget::makeLayerCombo() {
     for(auto &tp: tps ) {
         int z = tps.count() - tp->config()->initial_rank;
         bool visible = tp->isVisible();
-        layer_combo->makeLayerControl(tp->config()->name, visible, z);
+        layer_combo->makeLayerControl(tp->config()->name, visible, z, tp->config()->title);
     }
 
     connect(

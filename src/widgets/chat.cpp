@@ -15,6 +15,14 @@ Chat::Chat(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->label->hide();  // the title is on the card or the tab
+    ui->send_button->setObjectName("chat_send");
+    ui->send_button->setText("Send");
+    ui->msg_lineedit->setPlaceholderText("Message to the aircraft");
+    ui->name_combo->setToolTip("To");
+    ui->fd_combo->setToolTip("Log it in");
+    setFrameShape(QFrame::NoFrame);
+    setMinimumWidth(320);
+    ui->scrollArea->setMinimumHeight(320);     // a few messages visible
 
     auto settings_path = appConfig()->value("SETTINGS_PATH").toString();
     QSettings settings(settings_path, QSettings::IniFormat);
