@@ -13,6 +13,10 @@ LayerCombo::LayerCombo(QWidget *parent) : QWidget(parent), moved_layer_control(n
     scroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll->setFrameShape(QFrame::NoFrame);
+    main_layout->setContentsMargins(0, 0, 0, 0);
+    content_layout->setContentsMargins(0, 0, 0, 0);
+    content_layout->setSpacing(0);
 
     moved_thumbnail = new QLabel();
     moved_thumbnail->setWindowFlag(Qt::SubWindow);
@@ -27,7 +31,7 @@ bool LayerCombo::eventFilter(QObject *object, QEvent *event)
 {
 
     if (object == scroll_content && event->type() == QEvent::Resize) {
-        resize(scroll_content->sizeHint().width() + 40 , size().height());
+        resize(scroll_content->sizeHint().width() + scroll->verticalScrollBar()->sizeHint().width(), size().height());
     }
     return false;
 }

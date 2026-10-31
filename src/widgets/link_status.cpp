@@ -10,7 +10,7 @@ LinkStatus::LinkStatus(QString ac_id, QWidget *parent) : QWidget(parent),
     empty_label = new QLabel("No telemetry yet", this);
     empty_label->setObjectName("link_secondary");
     rows_layout->addWidget(empty_label);
-    setMinimumWidth(280);
+    setMinimumWidth(240);
 
     auto ac_status = AircraftManager::get()->getAircraft(ac_id)->getStatus();
     connect(ac_status, &AircraftStatus::telemetry_status, this, &LinkStatus::updateData);
@@ -22,8 +22,8 @@ LinkStatus::Row LinkStatus::makeRow(QString link_id) {
     r.widget->setObjectName("link_row");
     r.widget->setAttribute(Qt::WA_StyledBackground);
     auto v = new QVBoxLayout(r.widget);
-    v->setContentsMargins(10, 8, 10, 8);
-    v->setSpacing(6);
+    v->setContentsMargins(8, 6, 8, 6);
+    v->setSpacing(4);
 
     auto head = new QHBoxLayout();
     r.dot = new QLabel(r.widget);

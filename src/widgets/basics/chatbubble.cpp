@@ -42,6 +42,12 @@ ChatBubble::ChatBubble(QString source, QString dest, QString msg, bool sent, QWi
     ui->time_label->setObjectName("chat_time");
     ui->time_label->setStyleSheet("");
     ui->message_label->setWordWrap(true);
+    // compact: sender and time on one small line, little padding
+    ui->verticalLayout->setContentsMargins(8, 4, 8, 5);
+    ui->verticalLayout->setSpacing(1);
+    ui->title_bar->setSpacing(6);
+    ui->horizontalLayout->setContentsMargins(0, 1, 0, 1);
+    layout()->setContentsMargins(0, 0, 0, 0);
     ui->message_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     if(sent) {
         ui->name_label->setAlignment(Qt::AlignRight);

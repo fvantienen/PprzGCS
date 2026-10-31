@@ -22,7 +22,12 @@ Chat::Chat(QWidget *parent) :
     ui->fd_combo->setToolTip("Log it in");
     setFrameShape(QFrame::NoFrame);
     setMinimumWidth(320);
-    ui->scrollArea->setMinimumHeight(320);     // a few messages visible
+    ui->scrollArea->setMinimumHeight(300);     // a few messages visible
+    ui->scrollArea->setFrameShape(QFrame::NoFrame);
+    ui->verticalLayout->setContentsMargins(0, 0, 0, 0);
+    ui->verticalLayout->setSpacing(4);
+    ui->scroll_widget->layout()->setContentsMargins(0, 0, 4, 0);
+    ui->scroll_widget->layout()->setSpacing(3);
 
     auto settings_path = appConfig()->value("SETTINGS_PATH").toString();
     QSettings settings(settings_path, QSettings::IniFormat);

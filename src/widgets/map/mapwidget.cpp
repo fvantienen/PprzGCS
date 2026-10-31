@@ -1690,7 +1690,7 @@ void MapWidget::addRailPanel(QString id, QWidget* widget, QString title, QString
     auto header = new QWidget(card);
     header->setObjectName("rail_card_header");
     auto header_layout = new QHBoxLayout(header);
-    header_layout->setContentsMargins(12, 4, 4, 4);
+    header_layout->setContentsMargins(10, 2, 2, 2);
     auto title_label = new QLabel(title, header);
     title_label->setObjectName("rail_card_title");
     auto close_button = new QToolButton(header);
@@ -1703,13 +1703,13 @@ void MapWidget::addRailPanel(QString id, QWidget* widget, QString title, QString
     auto body = new QWidget(card);
     body->setObjectName("rail_card_body");
     auto body_layout = new QVBoxLayout(body);
-    body_layout->setContentsMargins(8, 4, 8, 8);
+    body_layout->setContentsMargins(6, 4, 6, 6);
     body_layout->addWidget(widget);
     card_layout->addWidget(body);
     widget->show();
-    // a panel from the tabs gets a usable width over the map
-    if(widget->sizeHint().width() < 300) {
-        card->setMinimumWidth(360);
+    // only panels made for a column (e.g. from the tabs) need a usable width over the map
+    if(widget->sizeHint().width() < 200) {
+        card->setMinimumWidth(320);
     }
     if(!qApp->styleSheet().contains("rail_card")) {
         card->setStyleSheet("#rail_card {background: white; border: 1px solid #c4ccd5; border-radius: 8px;}"

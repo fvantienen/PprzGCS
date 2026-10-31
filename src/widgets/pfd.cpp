@@ -32,13 +32,17 @@ void Pfd::paintEvent(QPaintEvent *event) {
     }
 
     // square attitude indicator, the heading tape below
-    const double tape_h = 34, values_h = 22;
-    double side = qMin<double>(width(), height() - tape_h - values_h - 12);
-    QRectF att((width() - side) / 2, 0, side, side);
-    QRectF tape(att.left(), att.bottom() + 6, side, tape_h);
-    QRectF values(att.left(), tape.bottom() + 6, side, values_h);
+    // attitude, with the height tape on its right; heading tape and values below
+    const double tape_h = 34, values_h = 22, alt_w = 58, gap = 6;
+    double side = qMin<double>(width() - alt_w - gap, height() - tape_h - values_h - 2 * gap);
+    double left = (width() - side - alt_w - gap) / 2;
+    QRectF att(left, 0, side, side);
+    QRectF alt_tape(att.right() + gap, 0, alt_w, side);
+    QRectF tape(att.left(), att.bottom() + gap, side, tape_h);
+    QRectF values(att.left(), tape.bottom() + gap, side + gap + alt_w, values_h);
 
     paintAttitude(p, att, e.roll, e.pitch, ac_color, valid);
+    paintAltitude(p, alt_tape, e, valid);
     paintHeading(p, tape, e.yaw, valid);
 
     // the values as text below the instrument
@@ -59,11 +63,12 @@ void Pfd::paintEvent(QPaintEvent *event) {
         p.setFont(vf);
     };
     QString dash = QString::fromUtf8("\xE2\x80\x94");
-    double third = values.width() / 3;
+    double third = values.width() / 4;
     value(QRectF(values.left(), values.top(), third - 10, values_h), "Roll", valid ? QString("%1°").arg(e.roll, 0, 'f', 0) : dash);
     value(QRectF(values.left() + third + 5, values.top(), third - 10, values_h), "Pitch", valid ? QString("%1°").arg(e.pitch, 0, 'f', 0) : dash);
     double hd = fmod(fmod(e.yaw, 360.) + 360., 360.);
     value(QRectF(values.left() + 2 * third + 10, values.top(), third - 10, values_h), "Hdg", valid ? QString("%1°").arg(static_cast<int>(round(hd)) % 360) : dash);
+    value(QRectF(values.left() + 3 * third + 15, values.top(), third - 15, values_h), "MSL", valid ? QString("%1").arg(e.alt, 0, 'f', 0) : dash);
 }
 
 void Pfd::paintAttitude(QPainter& p, QRectF r, float roll, float pitch, QColor ac_color, bool valid) {
@@ -236,6 +241,82 @@ void Pfd::paintHeading(QPainter& p, QRectF r, float heading, bool valid) {
     p.drawText(box, Qt::AlignCenter, valid ? QString("%1°").arg(static_cast<int>(round(hd)) % 360, 3, 10, QChar('0')) : "---");
 }
 
+/**
+ * Height above ground: a vertical tape (+-25 m visible) with the value in a box, a marker at the
+ * target height of the flight plan and the climb rate below.
+ */
+void Pfd::paintAltitude(QPainter& p, QRectF r, const Eulers& e, bool valid) {
+    const double radius = 8;
+    const double range = 50.;      // m visible
+    double px_per_m = r.height() / range;
+    double cy = r.center().y();
+    p.save();
+    QPainterPath clip;
+    clip.addRoundedRect(r, radius, radius);
+    p.setClipPath(clip);
+    p.fillRect(r, QColor(0x1b1f25));
+
+    QFont f = font();
+    f.setPixelSize(10);
+    f.setBold(true);
+    p.setFont(f);
+    double h = valid ? e.agl : 0;
+    for(int m = static_cast<int>(floor((h - range / 2) / 5)) * 5; m <= h + range / 2; m += 5) {
+        double y = cy - (m - h) * px_per_m;
+        p.setPen(QPen(m < 0 ? QColor(0xb07a4a) : QColor(0xd6dce3), 1.4));
+        double len = (m % 10 == 0) ? 9 : 5;
+        p.drawLine(QPointF(r.left(), y), QPointF(r.left() + len, y));
+        // no numbers under the caption (top) and the climb (bottom)
+        if(m % 10 == 0 && y > r.top() + 22 && y < r.bottom() - 22) {
+            p.drawText(QRectF(r.left() + 12, y - 7, r.width() - 14, 14), Qt::AlignLeft | Qt::AlignVCenter, QString::number(m));
+        }
+    }
+    // the ground
+    double gy = cy + h * px_per_m;
+    if(gy < r.bottom()) {
+        p.fillRect(QRectF(r.left(), gy, r.width(), r.bottom() - gy), QColor(107, 68, 35, 150));
+    }
+    // the target height of the flight plan
+    if(valid && AircraftManager::get()->aircraftExists(current_ac)) {
+        auto nav = AircraftManager::get()->getAircraft(current_ac)->getStatus()->getMessage("NAV_STATUS");
+        if(nav) {
+            float target_alt = 0;
+            nav->getField("target_alt", target_alt);
+            double target_agl = target_alt - (e.alt - e.agl);
+            double ty = qBound(r.top() + 4, cy - (target_agl - h) * px_per_m, r.bottom() - 4);
+            QPolygonF tri;
+            tri << QPointF(r.right(), ty - 6) << QPointF(r.right() - 9, ty) << QPointF(r.right(), ty + 6);
+            p.setPen(Qt::NoPen);
+            p.setBrush(QColor(0x4fd1ff));
+            p.drawPolygon(tri);
+        }
+    }
+    p.restore();
+
+    // the height in a box
+    QRectF box(r.left() + 2, cy - 13, r.width() - 4, 26);
+    p.setPen(QPen(SYMBOL, 2));
+    p.setBrush(QColor(0x1b1f25));
+    p.drawRoundedRect(box, 5, 5);
+    QFont bf = font();
+    bf.setPixelSize(14);
+    bf.setBold(true);
+    p.setFont(bf);
+    p.setPen(Qt::white);
+    p.drawText(box, Qt::AlignCenter, valid ? QString::number(e.agl, 'f', 0) : "---");
+
+    // caption and climb
+    QFont cf = font();
+    cf.setPixelSize(10);
+    cf.setBold(true);
+    p.setFont(cf);
+    p.setPen(QColor(0xd6dce3));
+    p.drawText(QRectF(r.left(), r.top() + 2, r.width(), 14), Qt::AlignCenter, "AGL m");
+    QString climb = valid ? QString("%1%2").arg(e.climb > 0.05 ? QString::fromUtf8("\xE2\x86\x91") : (e.climb < -0.05 ? QString::fromUtf8("\xE2\x86\x93") : QString()))
+                                           .arg(fabs(e.climb), 0, 'f', 1) : QString();
+    p.drawText(QRectF(r.left(), r.bottom() - 16, r.width(), 14), Qt::AlignCenter, climb);
+}
+
 void Pfd::changeCurrentAC(QString id) {
     if(AircraftManager::get()->aircraftExists(id)) {
         current_ac = id;
@@ -251,7 +332,11 @@ void Pfd::updateEulers(pprzlink::Message msg) {
         msg.getField("roll", roll);
         msg.getField("pitch", pitch);
         msg.getField("heading", heading);
-        eulers[ac_id] = Eulers {roll, pitch, heading};
+        Eulers e {roll, pitch, heading};
+        msg.getField("agl", e.agl);
+        msg.getField("alt", e.alt);
+        msg.getField("climb", e.climb);
+        eulers[ac_id] = e;
         if(ac_id == current_ac) {
             update();
         }
@@ -260,10 +345,10 @@ void Pfd::updateEulers(pprzlink::Message msg) {
 
 QSize Pfd::sizeHint() const
 {
-    return QSize(260, 320);
+    return QSize(320, 320);
 }
 
 QSize Pfd::minimumSizeHint() const
 {
-    return QSize(200, 260);
+    return QSize(260, 260);
 }
