@@ -215,3 +215,39 @@ QPushButton#setting_group {
 QPushButton#setting_group:hover {
     background-color: #232830;
 }
+
+/* Text fields: rounded, blue border while typing */
+QLineEdit {
+    background-color: #232830;
+    border: 1px solid #3a424d;
+    border-radius: 6px;
+    padding: 5px 8px;
+}
+QLineEdit:focus {
+    border: 2px solid #6ea8ff;
+    padding: 4px 7px;
+}
+/* Settings: home and save as flat icon buttons, the path as links */
+QToolButton#setting_tool {
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    min-width: 32px;
+    min-height: 32px;
+}
+QToolButton#setting_tool:hover {
+    background-color: #2a3038;
+}
+QPushButton#setting_path {
+    background: transparent;
+    border: 0;
+    padding: 2px 2px;
+    color: #8fbcff;
+    font-weight: bold;
+}
+QPushButton#setting_path:hover {
+    text-decoration: underline;
+}
+QLabel#setting_path_sep {
+    color: #aab3bd;
+}

@@ -15,10 +15,14 @@ SettingsViewer::SettingsViewer(QString ac_id, QWidget *parent) : QWidget(parent)
 
 
     button_home = new QToolButton(this);
-    button_home->setText(QString::fromUtf8("\xE2\x8C\x82"));
+    button_home->setObjectName("setting_tool");
+    button_home->setIcon(QIcon(user_or_app_path("pictures/tool_home.svg")));
+    button_home->setIconSize(QSize(20, 20));
 
     button_save = new QToolButton(this);
-    button_save->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    button_save->setObjectName("setting_tool");
+    button_save->setIcon(QIcon(user_or_app_path("pictures/tool_save.svg")));
+    button_save->setIconSize(QSize(20, 20));
 
     // home, search and save on one row; the path (System > Logger) below, only inside a group
     main_layout->setContentsMargins(6, 6, 6, 6);
@@ -35,6 +39,7 @@ SettingsViewer::SettingsViewer(QString ac_id, QWidget *parent) : QWidget(parent)
     main_layout->addWidget(scroll, 1);    // the list takes the extra height (e.g. in a tab)
     scroll->setWidget(scroll_content);
     scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
 
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -145,8 +150,10 @@ void SettingsViewer::create_widgets(SettingMenu* setting_menu, QList<SettingMenu
     if(new_stack.size()>0) {
         for(auto setmm = std::next(new_stack.begin()); setmm != new_stack.end(); ++setmm) {
             auto setm = (*setmm);
-            auto sep = new QLabel(">", path_widget);
+            auto sep = new QLabel(QString::fromUtf8("\xE2\x80\xBA"), path_widget);
+            sep->setObjectName("setting_path_sep");
             auto button = new QPushButton(setm->getName(), path_widget);
+            button->setObjectName("setting_path");
             sep->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
             button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
             current_path_layout->addWidget(sep);
