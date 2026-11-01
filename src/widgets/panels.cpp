@@ -463,3 +463,17 @@ void PanelTabBar::mouseMoveEvent(QMouseEvent* e) {
     }
     QTabBar::mouseMoveEvent(e);
 }
+
+void PanelManager::showPanel(QString id) {
+    if(!contains(id)) {
+        return;
+    }
+    auto &p = panels[id];
+    if(p.location == "rail") {
+        if(_map) {
+            _map->openRailPanel(p.widget);
+        }
+    } else if(auto tabs = tabsById(p.location)) {
+        tabs->setCurrentWidget(p.widget);
+    }
+}

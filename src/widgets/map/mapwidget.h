@@ -155,6 +155,12 @@ private:
 
     QList<LockButton*> buttonsLeft;
     PanelTabs* bottom_tabs;
+    class MapNotifications* notifications;
+    void watchAircraftStates(QString ac_id);
+public:
+    /// Show a rail panel (as if its button was pressed)
+    bool openRailPanel(QWidget* widget);
+private:
     QMap<QWidget*, QFrame*> rail_cards;   // panel -> its card over the map (title, close)
     void fitRailCards();
 protected:

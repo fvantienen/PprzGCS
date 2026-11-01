@@ -1,5 +1,6 @@
 #include "mapwidget.h"
 #include "panels.h"
+#include "map_notifications.h"
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include "map_item.h"
@@ -558,6 +559,48 @@ void MapWidget::configure(QDomElement ele) {
     }
 
     PanelManager::get()->setMap(this);
+
+    // notifications at the top of the map: messages, low battery, lost links
+    notifications = new MapNotifications(this);
+    connect(notifications, &MapNotifications::openChat, this, []() {
+        PanelManager::get()->showPanel("chat");
+    });
+    connect(notifications, &MapNotifications::senderClicked, this, [=,this](QString sender) {
+        if(AircraftManager::get()->aircraftExists(sender)) {
+            emit DispatcherUi::get()->ac_selected(sender);
+            auto ac = AircraftManager::get()->getAircraft(sender);
+            if(ac->isReal()) {
+                centerLatLon(ac->getPosition());
+            }
+        }
+    });
+    PprzDispatcher::get()->bind("INFO_MSG", this, [=,this](QString sender, pprzlink::Message msg) {
+        QByteArray ar;
+        msg.getField("msg", ar);
+        notifications->message(sender, QString(ar));
+    });
+    {
+        QSettings app_settings(appConfig()->value("SETTINGS_PATH").toString(), QSettings::IniFormat);
+        QString own_id = app_settings.value("pprzlink/id").toString();
+        PprzDispatcher::get()->bind("INFO_MSG_GROUND", this, [=,this](QString sender, pprzlink::Message msg) {
+            (void)sender;
+            QString txt, source, dest;
+            msg.getField("msg", txt);
+            msg.getField("source", source);
+            msg.getField("dest", dest);
+            auto d = dest.split(':')[0];
+            bool ok;
+            int dest_id = d.toInt(&ok, 0);
+            // to us, the ground or all; not our own messages
+            if(source != own_id && (d == own_id || (ok && (dest_id == 0 || dest_id == 0xFF)))) {
+                notifications->message(source, txt);
+            }
+        });
+    }
+    connect(DispatcherUi::get(), &DispatcherUi::new_ac_config, this, &MapWidget::watchAircraftStates);
+    for(auto ac: AircraftManager::get()->getAircrafts()) {
+        watchAircraftStates(ac->getId());
+    }
 
     wind_indicator = new WindIndicator(this);
     wind_indicator->setObjectName("wind_indicator");
@@ -1761,4 +1804,77 @@ void MapWidget::fitRailCards() {
 void MapWidget::resizeEvent(QResizeEvent *event) {
     Map2D::resizeEvent(event);
     fitRailCards();
+}
+
+/// Low battery and lost links of an aircraft as notifications at the top of the map.
+void MapWidget::watchAircraftStates(QString ac_id) {
+    if(!AircraftManager::get()->aircraftExists(ac_id)) {
+        return;
+    }
+    auto ac = AircraftManager::get()->getAircraft(ac_id);
+    auto watcher = ac->getStatus()->getWatcher();
+    QPointer<MapNotifications> n = notifications;
+    connect(watcher, &AircraftWatcher::bat_status, this, [=](AircraftWatcher::BatStatus bs) {
+        if(!n || !AircraftManager::get()->aircraftExists(ac_id)) {
+            return;
+        }
+        auto msg = AircraftManager::get()->getAircraft(ac_id)->getStatus()->getMessage("ENGINE_STATUS");
+        float bat = 0;
+        if(msg) {
+            msg->getField("bat", bat);
+        }
+        QString v = QString("%1 V").arg(bat, 0, 'f', 1);
+        switch(bs) {
+        case AircraftWatcher::BatStatus::CATASTROPHIC:
+        case AircraftWatcher::BatStatus::CRITIC:
+            n->setState("bat:" + ac_id, ac_id, "Battery critical: " + v, MapNotifications::ALARM);
+            break;
+        case AircraftWatcher::BatStatus::LOW:
+            n->setState("bat:" + ac_id, ac_id, "Battery low: " + v, MapNotifications::WARNING);
+            break;
+        case AircraftWatcher::BatStatus::OK:
+            n->setState("bat:" + ac_id, ac_id, "", MapNotifications::INFO);
+            break;
+        }
+    });
+    connect(watcher, &AircraftWatcher::link_status, this, [=](AircraftWatcher::LinkStatus ls) {
+        if(!n) {
+            return;
+        }
+        switch(ls) {
+        case AircraftWatcher::LinkStatus::LINK_LOST:
+            n->setState("link:" + ac_id, ac_id, "Link lost", MapNotifications::ALARM);
+            break;
+        case AircraftWatcher::LinkStatus::LINK_PARTIALY_LOST:
+            n->setState("link:" + ac_id, ac_id, "Link partly lost", MapNotifications::WARNING);
+            break;
+        case AircraftWatcher::LinkStatus::LINK_OK:
+            n->setState("link:" + ac_id, ac_id, "", MapNotifications::INFO);
+            break;
+        }
+    });
+    // an aircraft that is removed: its states go
+    connect(DispatcherUi::get(), &DispatcherUi::ac_deleted, this, [=](QString id) {
+        if(n && id == ac_id) {
+            n->setState("bat:" + ac_id, ac_id, "", MapNotifications::INFO);
+            n->setState("link:" + ac_id, ac_id, "", MapNotifications::INFO);
+        }
+    });
+}
+
+bool MapWidget::openRailPanel(QWidget* widget) {
+    auto card = rail_cards.value(widget, nullptr);
+    if(card == nullptr) {
+        return false;
+    }
+    for(auto button: buttonsLeft) {
+        if(button->widget() == card) {
+            if(!button->isActive()) {
+                button->setActive(true);
+                emit button->clicked(true);
+            }
+            return true;
+        }
+    }
+    return false;
 }

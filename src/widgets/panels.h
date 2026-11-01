@@ -38,6 +38,8 @@ public:
     void moveToTabs(QString id, PanelTabs* tabs, int index = -1);
     void moveToNewTabsBelow(QString id, PanelTabs* above);
     void moveToRail(QString id);
+    /// Show a panel: open it on the rail or select its tab
+    void showPanel(QString id);
 
     void restore();
     void reset();
