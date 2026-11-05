@@ -29,6 +29,8 @@ signals:
     void settingUpdated(QString ac_id, Setting*, float value);
     void mapRotated(double);    // map view rotation in degrees
     void centerMap(Point2DLatLon pos);
+    void followAircraft(int mode);      // the map follows the selected aircraft: 0 off, 1 follow, 2 follow and heading up
+    void appSettingsChanged();          // the app settings were saved
     //void create_waypoint(Waypoint*);
 
     // GVF viewer signals
